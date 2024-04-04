@@ -4,7 +4,7 @@
 PROJECT_NAME=spt
 PYTHON=3.8
 TORCH=2.2.0
-CUDA_SUPPORTED=(11.8 12.1)
+CUDA_SUPPORTED=(11.8 12.1 12.2)
 
 
 # Recover the project's directory from the position of the install.sh
@@ -72,6 +72,7 @@ conda create --name ${PROJECT_NAME} python=${PYTHON} -y
 # Activate the env
 source ${CONDA_DIR}/etc/profile.d/conda.sh  
 conda activate ${PROJECT_NAME}
+export PATH=/home/ubuntu/miniconda3/envs/spt/bin:$PATH
 
 echo
 echo
@@ -83,9 +84,9 @@ pip install plotly==5.9.0
 pip install "jupyterlab>=3" "ipywidgets>=7.6" jupyter-dash
 pip install "notebook>=5.3" "ipywidgets>=7.5"
 pip install ipykernel
-pip3 install torch==${TORCH} torchvision --index-url https://download.pytorch.org/whl/cu${CUDA_MAJOR}${CUDA_MINOR}
+pip3 install torch==2.2.0 torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install torchmetrics==0.11.4
-pip install pyg_lib torch_scatter torch_cluster -f https://data.pyg.org/whl/torch-${TORCH}+cu${CUDA_MAJOR}${CUDA_MINOR}.html
+pip install pyg_lib torch_scatter torch_cluster -f https://data.pyg.org/whl/torch-${TORCH}+cu121.html
 pip install torch_geometric==2.3.0
 pip install plyfile
 pip install h5py
@@ -108,7 +109,7 @@ echo
 echo
 echo "⭐ Installing FRNN"
 echo
-git clone --recursive https://github.com/lxxue/FRNN.git src/dependencies/FRNN
+git clone --recursive https://github.com/igasparini/FRNN.git src/dependencies/FRNN
 
 # install a prefix_sum routine first
 cd src/dependencies/FRNN/external/prefix_sum
