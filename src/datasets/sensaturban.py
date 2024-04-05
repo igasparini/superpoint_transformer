@@ -7,33 +7,32 @@ import os.path as osp
 from plyfile import PlyData
 from src.datasets import BaseDataset
 from src.data import Data, InstanceData
-from src.datasets.dales_config import *
+from src.datasets.sensaturban_config import *
 from torch_geometric.data import extract_tar
 from torch_geometric.nn.pool.consecutive import consecutive_cluster
+from src.utils.color import to_float_rgb
+import numpy as np
 
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 log = logging.getLogger(__name__)
 
 
-# Occasional Dataloader issues with DALES on some machines. Hack to
-# solve this:
-# https://stackoverflow.com/questions/73125231/pytorch-dataloaders-bad-file-descriptor-and-eof-for-workers0
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-__all__ = ['DALES', 'MiniDALES']
+__all__ = ['SensatUrban', 'MiniSensatUrban']
 
 
 ########################################################################
 #                                 Utils                                #
 ########################################################################
 
-def read_dales_tile(
-        filepath, xyz=True, intensity=True, semantic=True, instance=True,
+def read_sensaturban_tile(
+        filepath, xyz=True, rgb=True, intensity=False, semantic=True, instance=False,
         remap=False):
-    """Read a DALES tile saved as PLY.
+    """Read a SensatUrban tile saved as PLY.
 
     :param filepath: str
         Absolute path to the PLY file
@@ -46,51 +45,65 @@ def read_dales_tile(
     :param instance: bool
         Whether instance labels should be saved in the output Data.obj
     :param remap: bool
-        Whether semantic labels should be mapped from their DALES ID
+        Whether semantic labels should be mapped from their SensatUrban ID
         to their train ID.
     """
     data = Data()
-    key = 'testing'
+    key = 'vertex'
     with open(filepath, "rb") as f:
         tile = PlyData.read(f)
 
+        # if xyz:
+        #     pos = torch.stack([
+        #         torch.FloatTensor(tile[key][axis])
+        #         for axis in ["x", "y", "z"]], dim=-1)
+        #     pos_offset = pos[0]
+        #     data.pos = pos - pos_offset
+        #     data.pos_offset = pos_offset
+
         if xyz:
-            pos = torch.stack([
-                torch.FloatTensor(tile[key][axis])
-                for axis in ["x", "y", "z"]], dim=-1)
+            pos = np.stack([
+                np.copy(tile[key][axis])
+                for axis in ["x", "y", "z"]], axis=-1)
+            pos = torch.from_numpy(pos).float()
             pos_offset = pos[0]
             data.pos = pos - pos_offset
             data.pos_offset = pos_offset
 
-        if intensity:
-            # Heuristic to bring the intensity distribution in [0, 1]
-            data.intensity = torch.FloatTensor(
-                tile[key]['intensity']).clip(min=0, max=60000) / 60000
+        if rgb:
+            data.rgb = to_float_rgb(torch.stack([
+                torch.FloatTensor(tile[key][axis])
+                for axis in ["red", "green", "blue"]], dim=-1))
+
+        # if intensity:
+        #     # Heuristic to bring the intensity distribution in [0, 1]
+        #     data.intensity = torch.FloatTensor(
+        #         tile[key]['intensity']).clip(min=0, max=60000) / 60000
 
         if semantic:
-            y = torch.LongTensor(tile[key]['sem_class'])
+            y = torch.LongTensor(tile[key]["class"])
             data.y = torch.from_numpy(ID2TRAINID)[y] if remap else y
 
-        if instance:
-            idx = torch.arange(data.num_points)
-            obj = torch.LongTensor(tile[key]['ins_class'])
-            obj = consecutive_cluster(obj)[0]
-            count = torch.ones_like(obj)
-            y = torch.LongTensor(tile[key]['sem_class'])
-            y = torch.from_numpy(ID2TRAINID)[y] if remap else y
-            data.obj = InstanceData(idx, obj, count, y, dense=True)
+        # if instance:
+        #     idx = torch.arange(data.num_points)
+        #     obj = torch.LongTensor(tile[key]['ins_class'])
+        #     obj = consecutive_cluster(obj)[0]
+        #     count = torch.ones_like(obj)
+        #     y = torch.LongTensor(tile[key]['sem_class'])
+        #     y = torch.from_numpy(ID2TRAINID)[y] if remap else y
+        #     data.obj = InstanceData(idx, obj, count, y, dense=True)
 
     return data
 
 
 ########################################################################
-#                                DALES                                 #
+#                                SensatUrban                                 #
 ########################################################################
 
-class DALES(BaseDataset):
-    """DALES dataset.
+class SensatUrban(BaseDataset):
+    """SensatUrban dataset.
 
-    Dataset website: https://udayton.edu/engineering/research/centers/vision_lab/research/was_data_analysis_and_processing/dale.php
+    Dataset website: http://point-cloud-analysis.cs.ox.ac.uk/
 
     Parameters
     ----------
@@ -132,7 +145,7 @@ class DALES(BaseDataset):
         being used for 'void', 'unlabelled', 'ignored' classes,
         indicated as `y=self.num_classes` in the dataset labels.
         """
-        return DALES_NUM_CLASSES
+        return SENSAT_NUM_CLASSES
 
     @property
     def stuff_classes(self):
@@ -174,13 +187,13 @@ class DALES(BaseDataset):
         return TILES
 
     def download_dataset(self):
-        """Download the DALES Objects dataset.
+        """Download the SensatUrban Objects dataset.
         """
         pass
         # # Manually download the dataset
         # if not osp.exists(osp.join(self.root, self._zip_name)):
         #     log.error(
-        #         f"\nDALES does not support automatic download.\n"
+        #         f"\nSensatUrban does not support automatic download.\n"
         #         f"Please, register yourself by filling up the form at "
         #         f"{self._form_url}\n"
         #         f"From there, manually download the '{self._zip_name}' into "
@@ -215,9 +228,12 @@ class DALES(BaseDataset):
         while `y < 0` AND `y >= self.num_classes` ARE VOID LABELS.
         This applies to both `Data.y` and `Data.obj.y`.
         """
-        return read_dales_tile(
-            raw_cloud_path, intensity=True, semantic=True, instance=True,
-            remap=True)
+        return read_sensaturban_tile(
+            raw_cloud_path, intensity=False, semantic=True, instance=False,
+            remap=False)
+        # def read_sensaturban_tile(
+        # filepath, xyz=True, rgb=True, intensity=False, semantic=True, instance=False,
+        # remap=False):
 
     @property
     def raw_file_structure(self):
@@ -265,11 +281,11 @@ class DALES(BaseDataset):
 
 
 ########################################################################
-#                              MiniDALES                               #
+#                              MiniSensatUrban                               #
 ########################################################################
 
-class MiniDALES(DALES):
-    """A mini version of DALES with only a few windows for
+class MiniSensatUrban(SensatUrban):
+    """A mini version of SensatUrban with only a few windows for
     experimentation.
     """
     _NUM_MINI = 2

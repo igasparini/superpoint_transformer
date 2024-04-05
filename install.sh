@@ -72,7 +72,7 @@ conda create --name ${PROJECT_NAME} python=${PYTHON} -y
 # Activate the env
 source ${CONDA_DIR}/etc/profile.d/conda.sh  
 conda activate ${PROJECT_NAME}
-export PATH=/home/ubuntu/miniconda3/envs/spt/bin:$PATH
+export PATH=/home/ubuntu/projektarbeit-2/miniconda/envs/spt/bin:$PATH
 
 echo
 echo

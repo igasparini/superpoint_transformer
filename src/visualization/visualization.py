@@ -23,7 +23,7 @@ def visualize_3d(
         class_colors=None,
         stuff_classes=None,
         num_classes=None,
-        hide_void_pred=False,
+        hide_void_pred=True,
         voxel=-1,
         max_points=50000,
         point_size=3,
