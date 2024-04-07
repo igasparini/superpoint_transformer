@@ -24,16 +24,53 @@ OBJECTS_UNTAR_NAME = "DALESObjects"
 #                              Data splits                             #
 ########################################################################
 
-# The validation set was arbitrarily chosen as the x last train tiles:
+# The validation set was arbitrarily chosen:
 TILES = {
     'train': [
-        'birmingham_block_0'],
+        'birmingham_block_0',
+        'birmingham_block_1',
+        'birmingham_block_4',
+        'birmingham_block_5',
+        'birmingham_block_6',
+        'birmingham_block_9',
+        'birmingham_block_10',
+        'birmingham_block_11',
+        'birmingham_block_12',
+        'birmingham_block_13',
+        #'cambridge_block_0', Buggy. See https://github.com/QingyongHu/SensatUrban/issues/4
+        #'cambridge_block_1', Buggy. See https://github.com/QingyongHu/SensatUrban/issues/4
+        'cambridge_block_2',
+        'cambridge_block_3',
+        'cambridge_block_6',
+        'cambridge_block_7',
+        'cambridge_block_8',
+        'cambridge_block_9',
+        'cambridge_block_12',
+        #'cambridge_block_13', Ground issue with RANSAC
+        'cambridge_block_14',
+        'cambridge_block_17',
+        'cambridge_block_18',
+        'cambridge_block_19',
+        'cambridge_block_20',
+        'cambridge_block_21',
+        'cambridge_block_23',
+        'cambridge_block_25',
+        'cambridge_block_26',
+        'cambridge_block_33',
+        #'cambridge_block_34' Buggy. See https://github.com/QingyongHu/SensatUrban/issues/4
+    ],
 
     'val': [
-        'birmingham_block_1'],
+        'birmingham_block_3',
+        'birmingham_block_7',
+        'cambridge_block_4',
+        'cambridge_block_10',
+        'cambridge_block_28'
+    ],
 
     'test': [
-        'birmingham_block_3']}
+        'cambridge_block_32'
+    ]}
 
 ########################################################################
 #                                Labels                                #

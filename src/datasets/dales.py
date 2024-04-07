@@ -176,27 +176,26 @@ class DALES(BaseDataset):
     def download_dataset(self):
         """Download the DALES Objects dataset.
         """
-        pass
-        # # Manually download the dataset
-        # if not osp.exists(osp.join(self.root, self._zip_name)):
-        #     log.error(
-        #         f"\nDALES does not support automatic download.\n"
-        #         f"Please, register yourself by filling up the form at "
-        #         f"{self._form_url}\n"
-        #         f"From there, manually download the '{self._zip_name}' into "
-        #         f"your '{self.root}/' directory and re-run.\n"
-        #         f"The dataset will automatically be unzipped into the "
-        #         f"following structure:\n"
-        #         f"{self.raw_file_structure}\n"
-        #         f"⛔ Make sure you DO NOT download the "
-        #         f"'{self._las_name}' nor '{self._ply_name}' versions, which "
-        #         f"do not contain all required point attributes.\n")
-        #     sys.exit(1)
+        # Manually download the dataset
+        if not osp.exists(osp.join(self.root, self._zip_name)):
+            log.error(
+                f"\nDALES does not support automatic download.\n"
+                f"Please, register yourself by filling up the form at "
+                f"{self._form_url}\n"
+                f"From there, manually download the '{self._zip_name}' into "
+                f"your '{self.root}/' directory and re-run.\n"
+                f"The dataset will automatically be unzipped into the "
+                f"following structure:\n"
+                f"{self.raw_file_structure}\n"
+                f"⛔ Make sure you DO NOT download the "
+                f"'{self._las_name}' nor '{self._ply_name}' versions, which "
+                f"do not contain all required point attributes.\n")
+            sys.exit(1)
 
-        # # Unzip the file and rename it into the `root/raw/` directory
-        # extract_tar(osp.join(self.root, self._zip_name), self.root)
-        # shutil.rmtree(self.raw_dir)
-        # os.rename(osp.join(self.root, self._unzip_name), self.raw_dir)
+        # Unzip the file and rename it into the `root/raw/` directory
+        extract_tar(osp.join(self.root, self._zip_name), self.root)
+        shutil.rmtree(self.raw_dir)
+        os.rename(osp.join(self.root, self._unzip_name), self.raw_dir)
 
     def read_single_raw_cloud(self, raw_cloud_path):
         """Read a single raw cloud and return a `Data` object, ready to

@@ -53,14 +53,6 @@ def read_sensaturban_tile(
     with open(filepath, "rb") as f:
         tile = PlyData.read(f)
 
-        # if xyz:
-        #     pos = torch.stack([
-        #         torch.FloatTensor(tile[key][axis])
-        #         for axis in ["x", "y", "z"]], dim=-1)
-        #     pos_offset = pos[0]
-        #     data.pos = pos - pos_offset
-        #     data.pos_offset = pos_offset
-
         if xyz:
             pos = np.stack([
                 np.copy(tile[key][axis])
@@ -75,29 +67,15 @@ def read_sensaturban_tile(
                 torch.FloatTensor(tile[key][axis])
                 for axis in ["red", "green", "blue"]], dim=-1))
 
-        # if intensity:
-        #     # Heuristic to bring the intensity distribution in [0, 1]
-        #     data.intensity = torch.FloatTensor(
-        #         tile[key]['intensity']).clip(min=0, max=60000) / 60000
-
         if semantic:
             y = torch.LongTensor(tile[key]["class"])
             data.y = torch.from_numpy(ID2TRAINID)[y] if remap else y
-
-        # if instance:
-        #     idx = torch.arange(data.num_points)
-        #     obj = torch.LongTensor(tile[key]['ins_class'])
-        #     obj = consecutive_cluster(obj)[0]
-        #     count = torch.ones_like(obj)
-        #     y = torch.LongTensor(tile[key]['sem_class'])
-        #     y = torch.from_numpy(ID2TRAINID)[y] if remap else y
-        #     data.obj = InstanceData(idx, obj, count, y, dense=True)
 
     return data
 
 
 ########################################################################
-#                                SensatUrban                                 #
+#                            SensatUrban                               #
 ########################################################################
 
 class SensatUrban(BaseDataset):

@@ -10,7 +10,7 @@ num_classes: 13
 stuff_classes: [0, 1]
 trainval: True
 val_on_test: True
-xy_tiling: 3
+#xy_tiling: 3
 
 # Features that will be computed, saved, loaded for points and segments
 
