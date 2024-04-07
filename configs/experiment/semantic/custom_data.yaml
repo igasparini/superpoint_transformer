@@ -1,10 +1,10 @@
 # @package _global_
 
 # to execute this experiment run:
-# python train.py experiment=semantic/sensaturban
+# python train.py experiment=semantic/custom_data
 
 defaults:
-  - override /datamodule: semantic/sensaturban.yaml
+  - override /datamodule: semantic/custom_data.yaml
   - override /model: semantic/spt-2.yaml
   - override /trainer: gpu.yaml
 
@@ -21,5 +21,5 @@ model:
 
 logger:
   wandb:
-    project: "spt_sensaturban"
+    project: "spt_custom_data"
     name: "SPT-64"

@@ -7,7 +7,7 @@ import os.path as osp
 from plyfile import PlyData
 from src.datasets import BaseDataset
 from src.data import Data, InstanceData
-from src.datasets.sensaturban_config import *
+from src.datasets.custom_data_config import *
 from torch_geometric.data import extract_tar
 from torch_geometric.nn.pool.consecutive import consecutive_cluster
 from src.utils.color import to_float_rgb
@@ -22,17 +22,17 @@ import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
-__all__ = ['SensatUrban', 'MiniSensatUrban']
+__all__ = ['CustomData', 'MiniCustomData']
 
 
 ########################################################################
 #                                 Utils                                #
 ########################################################################
 
-def read_sensaturban_tile(
-        filepath, xyz=True, rgb=True, intensity=False, semantic=True, instance=False,
+def read_custom_data_tile(
+        filepath, xyz=True, rgb=False, intensity=True, semantic=False, instance=False,
         remap=False):
-    """Read a SensatUrban tile saved as PLY.
+    """Read a custom data tile saved as PLY.
 
     :param filepath: str
         Absolute path to the PLY file
@@ -62,26 +62,20 @@ def read_sensaturban_tile(
             data.pos = pos - pos_offset
             data.pos_offset = pos_offset
 
-        if rgb:
-            data.rgb = to_float_rgb(torch.stack([
-                torch.FloatTensor(tile[key][axis])
-                for axis in ["red", "green", "blue"]], dim=-1))
-
-        if semantic:
-            y = torch.LongTensor(tile[key]["class"])
-            data.y = torch.from_numpy(ID2TRAINID)[y] if remap else y
+        if intensity:
+            # Heuristic to bring the intensity distribution in [0, 1]
+            intensity_array = tile[key]['intensity'].astype(np.float32)
+            data.intensity = torch.from_numpy(intensity_array).clip(min=0, max=60000) / 60000
 
     return data
 
 
 ########################################################################
-#                            SensatUrban                               #
+#                            Custom data                               #
 ########################################################################
 
-class SensatUrban(BaseDataset):
-    """SensatUrban dataset.
-
-    Dataset website: http://point-cloud-analysis.cs.ox.ac.uk/
+class CustomData(BaseDataset):
+    """Custom dataset.
 
     Parameters
     ----------
@@ -101,9 +95,6 @@ class SensatUrban(BaseDataset):
         want to run in CPU-based DataLoaders
     """
 
-    # _form_url = FORM_URL
-    # _ply_name = PLY_TAR_NAME
-
     @property
     def class_names(self):
         """List of string names for dataset classes. This list must be
@@ -120,7 +111,7 @@ class SensatUrban(BaseDataset):
         being used for 'void', 'unlabelled', 'ignored' classes,
         indicated as `y=self.num_classes` in the dataset labels.
         """
-        return SENSAT_NUM_CLASSES
+        return DALES_NUM_CLASSES
 
     @property
     def stuff_classes(self):
@@ -165,26 +156,6 @@ class SensatUrban(BaseDataset):
         """Download the SensatUrban Objects dataset.
         """
         pass
-        # # Manually download the dataset
-        # if not osp.exists(osp.join(self.root, self._zip_name)):
-        #     log.error(
-        #         f"\nSensatUrban does not support automatic download.\n"
-        #         f"Please, register yourself by filling up the form at "
-        #         f"{self._form_url}\n"
-        #         f"From there, manually download the '{self._zip_name}' into "
-        #         f"your '{self.root}/' directory and re-run.\n"
-        #         f"The dataset will automatically be unzipped into the "
-        #         f"following structure:\n"
-        #         f"{self.raw_file_structure}\n"
-        #         f"⛔ Make sure you DO NOT download the "
-        #         f"'{self._las_name}' nor '{self._ply_name}' versions, which "
-        #         f"do not contain all required point attributes.\n")
-        #     sys.exit(1)
-
-        # # Unzip the file and rename it into the `root/raw/` directory
-        # extract_tar(osp.join(self.root, self._zip_name), self.root)
-        # shutil.rmtree(self.raw_dir)
-        # os.rename(osp.join(self.root, self._unzip_name), self.raw_dir)
 
     def read_single_raw_cloud(self, raw_cloud_path):
         """Read a single raw cloud and return a `Data` object, ready to
@@ -203,8 +174,8 @@ class SensatUrban(BaseDataset):
         while `y < 0` AND `y >= self.num_classes` ARE VOID LABELS.
         This applies to both `Data.y` and `Data.obj.y`.
         """
-        return read_sensaturban_tile(
-            raw_cloud_path, intensity=False, semantic=True, instance=False,
+        return read_custom_data_tile(
+            raw_cloud_path, intensity=True, semantic=False, instance=False,
             remap=False)
 
     @property
@@ -253,10 +224,10 @@ class SensatUrban(BaseDataset):
 
 
 ########################################################################
-#                              MiniSensatUrban                               #
+#                             MiniCustom                               #
 ########################################################################
 
-class MiniSensatUrban(SensatUrban):
+class MiniCustomData(CustomData):
     """A mini version of SensatUrban with only a few windows for
     experimentation.
     """

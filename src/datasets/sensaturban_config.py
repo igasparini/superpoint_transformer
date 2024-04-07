@@ -2,25 +2,6 @@ import numpy as np
 
 
 ########################################################################
-#                         Download information                         #
-########################################################################
-
-FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSefhHMMvN0Uwjnj_vWQgYSvtFOtaoGFWsTIcRuBTnP09NHR7A/viewform?fbzx=5530674395784263977'
-
-# DALES in LAS format
-LAS_TAR_NAME = 'dales_semantic_segmentation_las.tar.gz'
-LAS_UNTAR_NAME = "dales_las"
-
-# DALES in PLY format
-PLY_TAR_NAME = 'dales_semantic_segmentation_ply.tar.gz'
-PLY_UNTAR_NAME = "dales_ply"
-
-# DALES in PLY, only version with intensity and instance labels
-OBJECTS_TAR_NAME = 'DALESObjects.tar.gz'
-OBJECTS_UNTAR_NAME = "DALESObjects"
-
-
-########################################################################
 #                              Data splits                             #
 ########################################################################
 

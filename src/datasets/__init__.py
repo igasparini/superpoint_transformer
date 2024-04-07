@@ -6,3 +6,4 @@ from .s3dis import *
 from .s3dis_room import *
 from .scannet import *
 from .sensaturban import *
+from .custom_data import *
