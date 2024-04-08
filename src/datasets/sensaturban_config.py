@@ -26,8 +26,8 @@ TILES = {
         'cambridge_block_7',
         'cambridge_block_8',
         'cambridge_block_9',
-        'cambridge_block_12',
-        #'cambridge_block_13', Ground issue with RANSAC
+        'cambridge_block_12', # Ground issue with RANSAC with ground_threshold = 5
+        #'cambridge_block_13', # Ground issue with RANSAC with ground_threshold = 10
         'cambridge_block_14',
         'cambridge_block_17',
         'cambridge_block_18',
@@ -35,8 +35,8 @@ TILES = {
         'cambridge_block_20',
         'cambridge_block_21',
         'cambridge_block_23',
-        'cambridge_block_25',
         'cambridge_block_26',
+        'cambridge_block_32',
         'cambridge_block_33',
         #'cambridge_block_34' Buggy. See https://github.com/QingyongHu/SensatUrban/issues/4
     ],
@@ -50,7 +50,7 @@ TILES = {
     ],
 
     'test': [
-        'cambridge_block_32'
+        'cambridge_block_25'
     ]}
 
 ########################################################################

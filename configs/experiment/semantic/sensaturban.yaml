@@ -11,8 +11,21 @@ defaults:
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
 
+dataloader:
+    batch_size: 1
+    sample_graph_k: 2
+
+callbacks:
+  gradient_accumulator:
+    scheduling:
+      0:
+        4  # accumulate gradient every 2 batches, to make up for reduced batch size
+
 trainer:
-  max_epochs: 400
+  max_epochs: 400  # ADAPT THIS -- from s3dis: to keep same nb of steps: 8x more tiles, 2-step gradient accumulation -> epochs/4
+
+# trainer:
+#   max_epochs: 400
 
 model:
   optimizer:

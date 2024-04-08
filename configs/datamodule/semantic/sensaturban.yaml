@@ -3,14 +3,14 @@ defaults:
   - /datamodule/semantic/default.yaml
 
 _target_: src.datamodules.sensaturban.SensatUrbanDataModule
-
+    
 # These parameters are not actually used by the DataModule, but are used
 # here to facilitate model parameterization with config interpolation
 num_classes: 13
 stuff_classes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 trainval: True
 val_on_test: True
-#xy_tiling: 3
+pc_tiling: 4
 
 # Features that will be computed, saved, loaded for points and segments
 
@@ -65,7 +65,7 @@ knn: 25
 knn_r: 10
 knn_step: -1
 knn_min_search: 10
-ground_threshold: 5
+ground_threshold: 10 # 5
 ground_scale: 20
 pcp_regularization: [0.1, 0.2, 0.3]
 pcp_spatial_weight: [1e-1, 1e-2, 1e-3]
